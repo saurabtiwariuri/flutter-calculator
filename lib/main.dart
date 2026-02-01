@@ -39,6 +39,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         _result = "";
       } else if (value == "=") {
         _calculateResult();
+      } else if (value == "x²") {
+        _squareCurrentValue();
       } else {
         _expression += value;
       }
@@ -49,15 +51,34 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     try {
       if (_expression.isEmpty) return;
 
-      // Parse the expression using the expressions package
       Expression exp = Expression.parse(_expression);
-
       const evaluator = ExpressionEvaluator();
       var evalResult = evaluator.eval(exp, {});
 
       setState(() {
         _result = evalResult.toString();
         _expression = "$_expression = $_result";
+      });
+    } catch (e) {
+      setState(() {
+        _result = "Error";
+      });
+    }
+  }
+
+  void _squareCurrentValue() {
+    try {
+      if (_expression.isEmpty) return;
+
+      Expression exp = Expression.parse(_expression);
+      const evaluator = ExpressionEvaluator();
+      var value = evaluator.eval(exp, {});
+
+      var squared = value * value;
+
+      setState(() {
+        _expression = "$_expression² = $squared";
+        _result = squared.toString();
       });
     } catch (e) {
       setState(() {
@@ -94,7 +115,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       ),
       body: Column(
         children: [
-          // Display
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -122,10 +142,14 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             ),
           ),
 
-          // Buttons
           Expanded(
             child: Column(
               children: [
+                Row(
+                  children: [
+                    _buildButton("x²", color: Colors.purple),
+                  ],
+                ),
                 Row(
                   children: [
                     _buildButton("7"),
